@@ -7,7 +7,9 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,6 +18,7 @@ public class UniPathway {
     static final String VARIANT_URL     = "/overview/PartOf_relationship/main";
     static final String CROSSREF_URL    = "/overview/cross_ref/main";
     static final String TERM_DEFINITION = "/overview/term_definition/main";
+    static final String METACYC_MAPPING = "/chemical_view/mapping_metacyc/partofpage.html";
 
     private static String getType( final String id ) throws Exception {
         String type = null;
@@ -33,6 +36,37 @@ public class UniPathway {
             throw new Exception( "Unknown type: " + id.substring(0,3) );
 
         return type;
+    }
+
+    static public Map< String, List< String > > getMappedReactionsFromPathway( final String id ) throws IOException, Exception {
+        final String                    type    = getType( id );
+        if( !type.equals( "upa" ) )
+            throw new Exception( "Only upa type is supported not: " + type );
+        Document                        doc     = Jsoup.connect( BASE_URL + type + METACYC_MAPPING + "?upid=" + id).get();
+        Map<Integer, String >           ref     = new HashMap<Integer, String >();
+        Map< String, List< String > >   header  = new HashMap< String, List< String > >();
+        int                             index   = 0;
+        int                             maxindex= 0;
+        String                          key     = null;
+
+        Element table = doc.select("div#mapping_metacyc_main > table.small").first();
+
+        for ( Element row : table.select("tr > th") ) {
+            header.put(row.text(), new ArrayList());
+            ref.put( index, row.text() );
+            index++;
+        }
+
+        maxindex    = --index;
+        index       = 0;
+
+        for ( Element row : table.select("tr > td") ) {
+            key = ref.get( index );
+            header.get(key).add( row.text() );
+            index = ( index >= maxindex )? 0 : ++index;
+        }
+
+        return header;
     }
 
     static public List<List< String >> getVariant( final String id ) throws IOException, Exception {
