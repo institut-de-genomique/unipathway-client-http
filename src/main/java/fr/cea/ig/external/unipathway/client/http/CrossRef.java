@@ -46,13 +46,18 @@ public class CrossRef {
         return mOntology;
     }
 
-    public List<String[]> getmRheaReaction() {
+    public List<String[]> getRheaReaction() {
         return mRheaReaction;
     }
 
-    public List<String[]> getmMetacycReaction() {
+    public List<String[]> getMetacycReaction() {
         return mMetacycReaction;
     }
+
+    public List<String[]> getKeggReaction() {
+        return mKeggReaction;
+    }
+
 
     public List<String[]> getKeggMap() {
         return mKeggMap;

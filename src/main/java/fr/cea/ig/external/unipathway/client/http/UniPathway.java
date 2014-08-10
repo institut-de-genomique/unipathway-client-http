@@ -12,16 +12,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class UniPathway {
-    static final String BASE_URL        = "http://www.grenoble.prabi.fr/obiwarehouse/unipathway/";
-    static final String VARIANT_URL     = "/overview/PartOf_relationship/main";
-    static final String CROSSREF_URL    = "/overview/cross_ref/main";
-    static final String TERM_DEFINITION = "/overview/term_definition/main";
-    static final String METACYC_MAPPING = "/chemical_view/mapping_metacyc/partofpage.html";
+    private static final String BASE_URL        = "http://www.grenoble.prabi.fr/obiwarehouse/unipathway/";
+    private static final String VARIANT_URL     = "/overview/PartOf_relationship/main";
+    private static final String CROSSREF_URL    = "/overview/cross_ref/main";
+    private static final String TERM_DEFINITION = "/overview/term_definition/main";
+    private static final String METACYC_MAPPING = "/chemical_view/mapping_metacyc/partofpage.html";
 
     private static String getType( final String id ) throws Exception {
-        String type = null;
+        String type;
         if ( id.startsWith("UPA") )
             type = "upa";
         else if ( id.startsWith( "ULS" ) )
@@ -38,21 +39,21 @@ public class UniPathway {
         return type;
     }
 
-    static public Map< String, List< String > > getMappedReactionsFromPathway( final String id ) throws IOException, Exception {
+    static public Map< String, List< String > > getMappedReactionsFromPathway( final String id ) throws Exception {
         final String                    type    = getType( id );
         if( !type.equals( "upa" ) )
             throw new Exception( "Only upa type is supported not: " + type );
         Document                        doc     = Jsoup.connect( BASE_URL + type + METACYC_MAPPING + "?upid=" + id).get();
-        Map<Integer, String >           ref     = new HashMap<Integer, String >();
-        Map< String, List< String > >   header  = new HashMap< String, List< String > >();
+        Map<Integer, String >           ref     = new HashMap<>();
+        Map< String, List< String > >   header  = new HashMap<>();
         int                             index   = 0;
-        int                             maxindex= 0;
-        String                          key     = null;
+        int                             maxindex;
+        String                          key;
 
         Element table = doc.select("div#mapping_metacyc_main > table.small").first();
 
         for ( Element row : table.select("tr > th") ) {
-            header.put(row.text(), new ArrayList());
+            header.put(row.text(), new ArrayList< String >());
             ref.put( index, row.text() );
             index++;
         }
@@ -69,14 +70,14 @@ public class UniPathway {
         return header;
     }
 
-    static public List<List< String >> getVariant( final String id ) throws IOException, Exception {
+    static public List<List< String >> getVariant( final String id ) throws Exception {
         Document                doc             = Jsoup.connect( BASE_URL + getType( id ) + VARIANT_URL + "?upid=" + id).get();
-        List< List< String > >  variants        = new ArrayList< List< String > >();
-        List< String >          variant         = null;
+        List< List< String > >  variants        = new ArrayList<>();
+        List< String >          variant;
         Elements                tableVariants   = doc.select("table  table.small");
 
         for( Element tableVariant: tableVariants ){
-            variant = new ArrayList< String >();
+            variant = new ArrayList<>();
             for( Element row : tableVariant.select("tr > td") )
                 variant.add( row.text() );
             variants.add( variant );
@@ -88,22 +89,22 @@ public class UniPathway {
     static public CrossRef getCrossRef( final String id ) throws Exception {
         Document            doc             = Jsoup.connect(BASE_URL + getType( id ) + CROSSREF_URL + "?upid=" + id).get();
         Elements            rows            = doc.select("table.small > tbody > tr:has(th)");
-        String              rowType         = null;
-        Element             column          = null;
-        Elements            subRows         = null;
+        String              rowType;
+        Element             column;
+        Elements            subRows;
         String              description     = null;
         String              keyword         = null;
         String[]            ontology        = null;
-        List< String[] >    rheaReaction    = new ArrayList< String[] >();
-        List< String[] >    metacycReaction = new ArrayList< String[] >();
-        List< String[] >    keggReaction    = new ArrayList< String[] >();
-        List< String[] >    enzymes         = new ArrayList< String[] >();
-        String[]            tmp             = null;
-        int                 index           = 0;
-        List< String[] >    keggMap         = new ArrayList< String[] >();
-        List< String[] >    metacycPathway  = new ArrayList< String[] >();
+        List< String[] >    rheaReaction    = new ArrayList<>();
+        List< String[] >    metacycReaction = new ArrayList<>();
+        List< String[] >    keggReaction    = new ArrayList<>();
+        List< String[] >    enzymes         = new ArrayList<>();
+        String[]            tmp;
+        int                 index;
+        List< String[] >    keggMap         = new ArrayList<>();
+        List< String[] >    metacycPathway  = new ArrayList<>();
         final Pattern       ontoPattern     = Pattern.compile( "(GO:\\d+) (.+)" );
-        Matcher             matcher         = null;
+        Matcher             matcher;
 
         for( Element row : rows ){
             rowType = row.select("th").first().text();
@@ -217,14 +218,14 @@ public class UniPathway {
     static public Term getTerm( final String id ) throws Exception {
         Document        doc             = Jsoup.connect(BASE_URL + getType(id) + TERM_DEFINITION + "?upid=" + id).get();
         Elements        rows            = doc.select("table.small > tbody > tr:has(th)");
-        String          rowType         = null;
-        Element         column          = null;
-        Elements        subRows         = null;
+        String          rowType;
+        Element         column;
+        Elements        subRows;
         String          type            = null;
         String          identifier      = null;
         int             accessionNumber = 0;
         String          name            = null;
-        List<String>    synonyms        = new ArrayList<String>();
+        List<String>    synonyms        = new ArrayList<>();
         String          description     = null;
         String          status          = null;
 
@@ -247,8 +248,11 @@ public class UniPathway {
                     break;
                 case "Synonym(s)":
                     subRows = column.select( "td > span" );
-                    for( Element subRow : subRows )
-                        synonyms.add(subRow.text());
+                    synonyms.addAll(
+                                        subRows.stream()
+                                               .map(Element::text)
+                                               .collect(Collectors.toList())
+                                   );
                     break;
                 case "Short description":
                     description = column.select( "td > span").text();

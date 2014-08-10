@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 public class UniPathwayTest {
 
     @Test
-    public void testGetPathway() throws IOException, Exception {
+    public void testGetPathway() throws Exception {
         List<List<String>> variants = UniPathway.getVariant("UPA00034");
 
         assertTrue( variants.size() == 4 );
@@ -44,7 +44,7 @@ public class UniPathwayTest {
     }
 
     @Test
-    public void testGetCrossRefUPA() throws IOException, Exception {
+    public void testGetCrossRefUPA() throws Exception {
         CrossRef ref = UniPathway.getCrossRef("UPA00034");
         assertTrue(ref.getDescription().equals("402.34 Amino-acid biosynthesis; L-lysine biosynthesis via DAP pathway"));
         assertTrue( ref.getKeyword().equals("no mapping") );
@@ -55,14 +55,14 @@ public class UniPathwayTest {
     }
 
     @Test
-    public void testGetCrossRefUER() throws IOException, Exception {
+    public void testGetCrossRefUER() throws Exception {
         CrossRef ref = UniPathway.getCrossRef("UER00015");
         assertTrue(ref.getEnzymes().get(0)[0].equals("EC 2.7.2.4"));
         assertTrue( ref.getOntology()[0].equals("GO:0004072") );
     }
 
     @Test
-    public void testGetTermUPA() throws IOException, Exception {
+    public void testGetTermUPA() throws Exception {
         Term term = UniPathway.getTerm("UPA00034");
         assertTrue( term.getType().equals( "Pathway" ) );
         assertTrue(term.getIdentifier().equals("UPA00034"));
@@ -70,8 +70,8 @@ public class UniPathwayTest {
     }
 
     @Test
-    public void testGetMetacycMapping() throws IOException, Exception {
-        Map< String, List< String > > data    = UniPathway.getMappedReactionsFromPathway( "UPA00033" );
+    public void testGetMetacycMapping() throws Exception {
+        Map< String, List< String > > data    = UniPathway.getMappedReactionsFromPathway("UPA00033");
         assertTrue(data.containsKey("Label"));
         assertTrue( data.containsKey( "Enzymatic-reaction"      ) );
         assertTrue( data.containsKey( "Rhea master reaction"    ) );
