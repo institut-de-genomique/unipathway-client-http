@@ -2,11 +2,17 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'nexus'
 
+sourceCompatibility     = 1.8
+targetCompatibility     = 1.8
+version                 = '0.1.0-SNAPSHOT'
+group                   = 'fr.cea.ig.external.unipathway.client.http'
+def projectName         = 'unipathway-client-http'
+def projectDescription  = 'unipathway-client-http is a project which aim to query unipathway website'
+def projectUrl          = 'https://github.com/institut-de-genomique/unipathway-client-http'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-version = '0.1.0-SNAPSHOT'
-group = "fr.cea.ig.external.unipathway.client.http"
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
 
 dependencies{
     compile     fileTree(dir: 'libs', include: '*.jar')
@@ -16,15 +22,11 @@ dependencies{
     testCompile group: 'junit',                         name: 'junit',              version: '4.11'
 }
 
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-}
-
 jar {
     manifest.attributes provider: 'genoscope'
-    baseName = 'unipathway-client-http'
-    version = '0.1.0-SNAPSHOT'
+    manifest.attributes 'Created-By': 'LABGeM'
+    manifest.attributes 'Product-Name': projectName
+    baseName = projectName
 }
 
 
@@ -49,10 +51,10 @@ buildscript {
 
 modifyPom {
     project {
-        name 'unipathway-client-http'
-        description 'unipathway-client-http is a project which aim to query unipathway website'
-        url 'https://github.com/institut-de-genomique/unipathway-client-http'
-        inceptionYear '2013'
+        name            projectName
+        description     projectDescription
+        url             projectUrl
+        inceptionYear   '2014'
 
         scm {
             url 'https://github.com/institut-de-genomique/unipathway-client-http'
