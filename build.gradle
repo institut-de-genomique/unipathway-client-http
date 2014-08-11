@@ -14,6 +14,16 @@ task sourceJar(type: Jar) {
     from sourceSets.main.allJava
 }
 
+task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+
+task packageSources(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
 dependencies{
     compile     fileTree(dir: 'libs', include: '*.jar')
     compile     group: 'org.jsoup',                     name: 'jsoup',              version: '1.7.3'
@@ -57,16 +67,16 @@ modifyPom {
         inceptionYear   '2014'
 
         scm {
-            url 'https://github.com/institut-de-genomique/unipathway-client-http'
-            connection 'scm:https://github.com/institut-de-genomique/unipathway-client-http.git'
+            url                 'https://github.com/institut-de-genomique/unipathway-client-http'
+            connection          'scm:https://github.com/institut-de-genomique/unipathway-client-http.git'
             developerConnection 'scm:git@github.com:institut-de-genomique/unipathway-client-http.git'
         }
 
         licenses {
             license {
-                name 'CeCILL-C'
-                url 'http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt'
-                distribution 'repo'
+                name            'CeCILL'
+                url             'http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html'
+                distribution    'repo'
             }
         }
 
